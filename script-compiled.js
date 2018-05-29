@@ -2,6 +2,8 @@
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -18,40 +20,37 @@ var Stopwatch = function (_React$Component) {
 
 		_this.state = {
 			running: false,
-			display: '',
-			times: {
-				minutes: 0,
-				seconds: 0,
-				miliseconds: 0
-			},
+			// display: '',
+			minutes: 0,
+			seconds: 0,
+			miliseconds: 0,
 			results: []
 		};
 
-		_this.print = _this.print.bind(_this);
+		// this.print = this.print.bind(this);
 		_this.format = _this.format.bind(_this);
 		_this.start = _this.start.bind(_this);
 		_this.step = _this.step.bind(_this);
 		_this.calculate = _this.calculate.bind(_this);
 		_this.stop = _this.stop.bind(_this);
 		_this.reset = _this.reset.bind(_this);
-		// this.save = this.save.bind(this);
-		// this.clear = this.clear.bind(this);
+		_this.save = _this.save.bind(_this);
+		_this.clear = _this.clear.bind(_this);
 		return _this;
 	}
 
+	// print() {
+	// 	this.setState({
+	// 		display: this.format()
+	// 	});
+	// }
+
 	_createClass(Stopwatch, [{
-		key: 'print',
-		value: function print() {
-			this.setState({
-				display: this.format()
-			});
-		}
-	}, {
 		key: 'format',
 		value: function format() {
-			var miliseconds = this.state.times.miliseconds;
-			var seconds = this.state.times.seconds;
-			var minutes = this.state.times.minutes;
+			var miliseconds = this.state.miliseconds;
+			var seconds = this.state.seconds;
+			var minutes = this.state.minutes;
 			return pad0(minutes) + ':' + pad0(seconds) + ':' + pad0(Math.floor(miliseconds));
 		}
 	}, {
@@ -59,8 +58,7 @@ var Stopwatch = function (_React$Component) {
 		value: function start() {
 			var _this2 = this;
 
-			var running = this.state.running;
-			if (!running) {
+			if (!this.state.running) {
 				this.setState({
 					running: true
 				});
@@ -72,17 +70,16 @@ var Stopwatch = function (_React$Component) {
 	}, {
 		key: 'step',
 		value: function step() {
-			var running = this.state.running;
-			if (!running) return;
+			if (!this.state.running) return;
 			this.calculate();
-			this.print();
+			// this.print();
 		}
 	}, {
 		key: 'calculate',
 		value: function calculate() {
-			var miliseconds = this.state.times.miliseconds;
-			var seconds = this.state.times.seconds;
-			var minutes = this.state.times.minutes;
+			var miliseconds = this.state.miliseconds;
+			var seconds = this.state.seconds;
+			var minutes = this.state.minutes;
 
 			miliseconds += 1;
 			if (miliseconds >= 100) {
@@ -112,24 +109,28 @@ var Stopwatch = function (_React$Component) {
 		value: function reset() {
 			this.setState({
 				running: false,
-				times: {
-					miliseconds: 0,
-					seconds: 0,
-					minutes: 0
-				}
+				miliseconds: 0,
+				seconds: 0,
+				minutes: 0
 			});
 		}
-		/*
-  	save() {
-  		//don't know yet how to do it
-  	}
-  
-  	clear() {
-  		this.setState({
-  			results: []
-  		});
-  	}*/
+	}, {
+		key: 'save',
+		value: function save() {
+			var data = this.state.results;
+			var dataEl = this.format(this.state.times);
 
+			this.setState({
+				results: [].concat(_toConsumableArray(data), [dataEl])
+			});
+		}
+	}, {
+		key: 'clear',
+		value: function clear() {
+			this.setState({
+				results: []
+			});
+		}
 	}, {
 		key: 'render',
 		value: function render() {
@@ -160,8 +161,21 @@ var Stopwatch = function (_React$Component) {
 					{ className: 'stopwatch' },
 					this.format()
 				),
-				React.createElement('nav', { className: 'controls' }),
-				React.createElement('ul', { className: 'results', id: 'ul' })
+				React.createElement(
+					'nav',
+					{ className: 'controls' },
+					React.createElement(
+						'a',
+						{ href: '#', className: 'button', id: 'save', onClick: this.save },
+						'Save'
+					),
+					React.createElement(
+						'a',
+						{ href: '#', className: 'button', id: 'clear', onClick: this.clear },
+						'Clear'
+					)
+				),
+				React.createElement(ResultList, { resultArr: this.state.results })
 			);
 		}
 	}]);
@@ -176,5 +190,58 @@ function pad0(value) {
 	}
 	return result;
 }
+
+var ResultList = function (_React$Component2) {
+	_inherits(ResultList, _React$Component2);
+
+	function ResultList() {
+		_classCallCheck(this, ResultList);
+
+		return _possibleConstructorReturn(this, (ResultList.__proto__ || Object.getPrototypeOf(ResultList)).apply(this, arguments));
+	}
+
+	_createClass(ResultList, [{
+		key: 'render',
+		value: function render() {
+			return React.createElement(
+				'ul',
+				null,
+				this.resultArr
+			);
+		}
+	}, {
+		key: 'resultArr',
+		get: function get() {
+			return this.props.resultArr.map(function (result, i) {
+				return React.createElement(Result, { key: i, resultItem: result });
+			});
+		}
+	}]);
+
+	return ResultList;
+}(React.Component);
+
+var Result = function (_React$Component3) {
+	_inherits(Result, _React$Component3);
+
+	function Result() {
+		_classCallCheck(this, Result);
+
+		return _possibleConstructorReturn(this, (Result.__proto__ || Object.getPrototypeOf(Result)).apply(this, arguments));
+	}
+
+	_createClass(Result, [{
+		key: 'render',
+		value: function render() {
+			return React.createElement(
+				'li',
+				{ id: this.props.resultItem },
+				this.props.resultItem
+			);
+		}
+	}]);
+
+	return Result;
+}(React.Component);
 
 ReactDOM.render(React.createElement(Stopwatch, null), document.getElementById('app'));

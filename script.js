@@ -3,42 +3,39 @@ class Stopwatch extends React.Component {
 		super(props);
 		this.state = {
 			running: false,
-			display: '',
-			times: {
-				minutes: 0,
-				seconds: 0,
-				miliseconds: 0
-			},
+			// display: '',
+			minutes: 0,
+			seconds: 0,
+			miliseconds: 0,
 			results: []
 		};
 
-		this.print = this.print.bind(this);
+		// this.print = this.print.bind(this);
 		this.format = this.format.bind(this);
 		this.start = this.start.bind(this);
 		this.step = this.step.bind(this);
 		this.calculate = this.calculate.bind(this);
 		this.stop = this.stop.bind(this);
 		this.reset = this.reset.bind(this);
-		// this.save = this.save.bind(this);
-		// this.clear = this.clear.bind(this);
+		this.save = this.save.bind(this);
+		this.clear = this.clear.bind(this);
 	}
 
-	print() {
-		this.setState({
-			display: this.format()
-		});
-	}
+	// print() {
+	// 	this.setState({
+	// 		display: this.format()
+	// 	});
+	// }
 
 	format() {
-		let miliseconds = this.state.times.miliseconds;
-		let seconds = this.state.times.seconds;
-		let minutes = this.state.times.minutes;
+		let miliseconds = this.state.miliseconds;
+		let seconds = this.state.seconds;
+		let minutes = this.state.minutes;
 		return `${pad0(minutes)}:${pad0(seconds)}:${pad0(Math.floor(miliseconds))}`;
 	}
 
 	start() {
-		const running = this.state.running
-		if (!running) {
+		if (!this.state.running) {
 			this.setState({
 				running: true
 			});
@@ -47,16 +44,15 @@ class Stopwatch extends React.Component {
 	}
 
 	step() {
-		const running = this.state.running
-		if (!running) return;
+		if (!this.state.running) return;
 		this.calculate();
-		this.print();
+		// this.print();
 	}
 
 	calculate() {
-		let miliseconds = this.state.times.miliseconds;
-		let seconds = this.state.times.seconds;
-		let minutes = this.state.times.minutes;
+		let miliseconds = this.state.miliseconds;
+		let seconds = this.state.seconds;
+		let minutes = this.state.minutes;
 
 		miliseconds += 1;
 		if (miliseconds >= 100) {
@@ -84,23 +80,26 @@ class Stopwatch extends React.Component {
 	reset() {
 		this.setState({
 			running: false,
-			times: {
-				miliseconds: 0,
-				seconds: 0,
-				minutes: 0
-			}
+			miliseconds: 0,
+			seconds: 0,
+			minutes: 0
 		});
 	}
-/*
+
 	save() {
-		//don't know yet how to do it
+		let data = this.state.results;
+		let dataEl = this.format(this.state.times);
+
+		this.setState({
+			results: [...data, dataEl]
+		});
 	}
 
 	clear() {
 		this.setState({
 			results: []
 		});
-	}*/
+	}
 
 	render() {
 		return (
@@ -118,25 +117,49 @@ class Stopwatch extends React.Component {
 				</nav>
 				<div className={'stopwatch'}>{this.format()}</div>
 				<nav className={'controls'}>
-					{/*<a href={'#'} className={'button'} id={'save'} onClick={this.save}>
+					<a href={'#'} className={'button'} id={'save'} onClick={this.save}>
 						Save
 					</a>
 					<a href={'#'} className={'button'} id={'clear'} onClick={this.clear}>
 						Clear
-					</a>*/}
+					</a>
 				</nav>
-				<ul className={'results'} id={'ul'}></ul>
+				<ResultList resultArr = {this.state.results} />
 			</div>
-		)
+		);
 	}
 }
 
 function pad0(value) {
-			let result = value.toString();
-			if (result.length < 2) {
-				result = '0' + result;
-			}
-			return result;
+		let result = value.toString();
+		if (result.length < 2) {
+			result = '0' + result;
+		}
+		return result;
+}
+
+class ResultList extends React.Component {
+	get resultArr() {
+		return this.props.resultArr.map((result, i) => <Result key={i} resultItem={result}/>);
+	}
+
+	render() {
+		return (
+			<ul>
+				{this.resultArr}
+			</ul>
+		);
+	}
+}
+
+class Result extends React.Component {
+	render() {
+		return (
+			<li id={this.props.resultItem}>
+				{this.props.resultItem}
+			</li>
+		)
+	}
 }
 
 ReactDOM.render(<Stopwatch />, document.getElementById('app'));
